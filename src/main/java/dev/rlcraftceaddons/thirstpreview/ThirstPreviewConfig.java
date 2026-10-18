@@ -14,11 +14,11 @@ public final class ThirstPreviewConfig {
         Configuration config = new Configuration(file);
         config.load();
         showTooltip = config.getBoolean("showTooltip", "client", true,
-                "Show per-use hydration in item tooltips (inventory and JEI).");
+                "Show per-use hydration icons in item tooltips (inventory and JEI).");
         showHud = config.getBoolean("showHud", "client", true,
-                "Preview held food/drink hydration on the SimpleDifficulty thirst bar.");
+                "Preview held hydration on the native thirst HUD or supported GraveStone water bar.");
         showDetailsWithShift = config.getBoolean("showDetailsWithShift", "client", true,
-                "Show saturation and dehydration probability when holding Shift. False: always show details.");
+                "Show exact hydration, saturation and dehydration probability with Shift. False: always show details.");
         if (config.hasChanged()) {
             config.save();
         }

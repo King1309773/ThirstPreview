@@ -1,3 +1,5 @@
 thirstpreview.tooltip.hydration=补水：%s 点（%s 格水滴）
+thirstpreview.tooltip.label=补水：
+thirstpreview.tooltip.points=补水：%s 点
 thirstpreview.tooltip.saturation=水分饱和度：%s 点
 thirstpreview.tooltip.dirty_chance=脱水概率：%s%%

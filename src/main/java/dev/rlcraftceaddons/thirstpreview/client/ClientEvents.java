@@ -19,10 +19,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -36,6 +36,8 @@ import org.lwjgl.opengl.GL14;
 /** Client-only presentation; never changes the capability or consumption behavior. */
 @SideOnly(Side.CLIENT)
 public final class ClientEvents {
+    private final TooltipHydrationRenderer tooltipPreview = new TooltipHydrationRenderer();
+    private final GraveStoneBarPreview barPreview = new GraveStoneBarPreview();
     private final FloatBuffer savedColor = BufferUtils.createFloatBuffer(4);
     private int updateCounter;
     private int capturedThirstY;
@@ -50,17 +52,26 @@ public final class ClientEvents {
         if (values == null) {
             return;
         }
-        // A measured tooltip row coexists with AppleSkin's external food panel.
-        event.getToolTip().add(TextFormatting.AQUA + I18n.format(
-                "thirstpreview.tooltip.hydration", format(values.amount),
-                format(PreviewMath.dropletUnits(values.amount))));
-        if (!ThirstPreviewConfig.showDetailsWithShift || GuiScreen.isShiftKeyDown()) {
+        boolean details = !ThirstPreviewConfig.showDetailsWithShift || GuiScreen.isShiftKeyDown();
+        boolean icons = tooltipPreview.addRow(event.getToolTip(), event.getItemStack(), values);
+        if (!icons || details) {
+            event.getToolTip().add(TextFormatting.AQUA + I18n.format(
+                    "thirstpreview.tooltip.hydration", Integer.toString(values.amount),
+                    format(PreviewMath.dropletUnits(values.amount))));
+        }
+        if (details) {
             event.getToolTip().add(TextFormatting.GRAY + I18n.format(
                     "thirstpreview.tooltip.saturation", format(values.saturation)));
             event.getToolTip().add(TextFormatting.GRAY + I18n.format(
                     "thirstpreview.tooltip.dirty_chance", format(values.dirtyChance * 100F)));
         }
     }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onTooltipPre(RenderTooltipEvent.Pre event) { tooltipPreview.pre(event); }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onTooltipText(RenderTooltipEvent.PostText event) { tooltipPreview.post(event); }
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
@@ -74,6 +85,7 @@ public final class ClientEvents {
     public void onOverlayPre(RenderGameOverlayEvent.Pre event) {
         if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
             capturedNativeRow = false;
+            barPreview.beginFrame();
             return;
         }
         if (event.getType() != RenderGameOverlayEvent.ElementType.AIR) {
@@ -91,8 +103,29 @@ public final class ClientEvents {
         capturedNativeRow = true;
     }
 
+    @SubscribeEvent(priority = EventPriority.LOW)
+    public void captureHorizontalBar(RenderGameOverlayEvent.Post event) {
+        if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
+            barPreview.capture(event.getResolution().getScaledWidth(), event.getResolution().getScaledHeight(),
+                    commonVisible(Minecraft.getMinecraft()), SDCompatibility.defaultThirstDisplay);
+        }
+    }
+
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onOverlayPost(RenderGameOverlayEvent.Post event) {
+        if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
+            Minecraft minecraft = Minecraft.getMinecraft();
+            if (commonVisible(minecraft)) {
+                ThirstValues values = heldValues(minecraft);
+                IThirstCapability thirst = SDCapabilities.getThirstData(minecraft.player);
+                if (values != null && thirst != null) {
+                    int current = thirst.getThirstLevel();
+                    barPreview.render(event.getResolution().getScaledWidth(), event.getResolution().getScaledHeight(),
+                            current, PreviewMath.restoredLevel(current, values.amount), pulse(event.getPartialTicks()));
+                }
+            }
+            return;
+        }
         if (event.getType() != RenderGameOverlayEvent.ElementType.AIR || !capturedNativeRow) {
             return;
         }
@@ -101,10 +134,7 @@ public final class ClientEvents {
         if (!shouldRender(minecraft)) {
             return;
         }
-        ThirstValues values = ClientPreviewPolicy.resolveHeld(
-                minecraft.player.isHandActive() ? minecraft.player.getActiveItemStack() : null,
-                minecraft.player.getHeldItemMainhand(), minecraft.player.getHeldItemOffhand(),
-                ThirstValueResolver::resolve);
+        ThirstValues values = heldValues(minecraft);
         if (values == null) {
             return;
         }
@@ -120,20 +150,34 @@ public final class ClientEvents {
         int[] shakeOffsets = ClientPreviewPolicy.nativeYOffsets(
                 updateCounter, current, thirst.getThirstSaturation());
         boolean thirsty = SDPotions.thirsty != null && minecraft.player.isPotionActive(SDPotions.thirsty);
-        float alpha = 0.4F + 0.3F * ((float) Math.sin(
-                (updateCounter + event.getPartialTicks()) * 0.25F) + 1F);
+        float alpha = pulse(event.getPartialTicks());
         renderChangedIcons(minecraft, event.getResolution().getScaledWidth(),
                 current, restored, shakeOffsets, thirsty, alpha);
     }
 
     private boolean shouldRender(Minecraft minecraft) {
-        boolean nativeHud = minecraft.player != null && minecraft.world != null
-                && minecraft.playerController != null && minecraft.playerController.shouldDrawHUD()
-                && minecraft.getRenderViewEntity() instanceof EntityPlayer
-                && GuiIngameForge.renderAir;
+        boolean nativeHud = commonVisible(minecraft) && GuiIngameForge.renderAir;
         return ClientPreviewPolicy.shouldShowHud(ThirstPreviewConfig.showHud,
                 minecraft.gameSettings.hideGUI, nativeHud, QuickConfig.isThirstEnabled(),
                 SDCompatibility.defaultThirstDisplay);
+    }
+
+    private boolean commonVisible(Minecraft minecraft) {
+        return ThirstPreviewConfig.showHud && QuickConfig.isThirstEnabled() && !minecraft.gameSettings.hideGUI
+                && minecraft.player != null && minecraft.world != null && minecraft.currentScreen == null
+                && !minecraft.player.capabilities.isCreativeMode && !minecraft.player.isSpectator()
+                && minecraft.playerController != null && minecraft.playerController.shouldDrawHUD()
+                && minecraft.getRenderViewEntity() == minecraft.player;
+    }
+
+    private ThirstValues heldValues(Minecraft minecraft) {
+        return ClientPreviewPolicy.resolveHeld(
+                minecraft.player.isHandActive() ? minecraft.player.getActiveItemStack() : null,
+                minecraft.player.getHeldItemMainhand(), minecraft.player.getHeldItemOffhand(), ThirstValueResolver::resolve);
+    }
+
+    private float pulse(float partialTicks) {
+        return 0.4F + 0.3F * ((float) Math.sin((updateCounter + partialTicks) * 0.25F) + 1F);
     }
 
     private void renderChangedIcons(Minecraft minecraft, int scaledWidth, int current, int restored,

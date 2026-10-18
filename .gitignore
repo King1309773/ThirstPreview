@@ -4,3 +4,4 @@ libs/
 run/
 *.log
 dist/
+logs/
