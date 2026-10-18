@@ -1,0 +1,3 @@
+thirstpreview.tooltip.hydration=Hydration: %s points (%s drops)
+thirstpreview.tooltip.saturation=Hydration saturation: %s points
+thirstpreview.tooltip.dirty_chance=Dehydration chance: %s%%

@@ -1,0 +1,12 @@
+[
+  {
+    "modid": "thirstpreview",
+    "name": "Thirst Preview / 补水预览",
+    "description": "Shows SimpleDifficulty hydration in food and drink tooltips and previews restoration over the thirst bar. 与坚定意志联动的食物补水提示与口渴条恢复预览。",
+    "version": "${version}",
+    "mcversion": "1.12.2",
+    "authorList": ["RLCraft CE Addons"],
+    "requiredMods": ["simpledifficulty"],
+    "dependencies": ["simpledifficulty"]
+  }
+]
