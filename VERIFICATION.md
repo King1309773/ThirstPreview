@@ -1,6 +1,6 @@
 # 验证记录
 
-日期：2026-10-18（中国标准时间）。版本：Thirst Preview 1.1.0 图标与横条本地测试版。目标实例：Rlcraft-CEAddons v涛.3，同时回归原 v2.7.涛 规则。
+日期：2026-10-18（中国标准时间）。版本：Thirst Preview 1.1.0 图标与横条测试版。目标实例：Rlcraft-CEAddons v涛.3，同时回归原 v2.7.涛 规则。
 
 ## 已完成
 
@@ -14,20 +14,22 @@
 - 当前 GraveStone JAR 指纹及公开配置字段经字节码核对；只读匹配，无必装依赖、无第三方类打包、无私有渲染调用。数字在条框外，叠层仅占内部新增/损失段。
 - 已覆盖缺目标、指纹不符、配置异常、绘制异常、原生与自定义路径互斥条件、帧重用、缩放/分辨率变化及高度错配时跳过。
 - 独立规格审查发现并修正了负图标实际颜色和 tooltip 失败回退两处缺口，复核通过。最终代码质量审查未发现 Critical/Important 问题，可交付本地测试；明确保留静态接线检查与简化字体模型的测试盲点。另只读核验了当前 JEI 及 great-scrollable-tooltips 的提示框传参与最终坐标路径。
-- 最终完整构建成功（34 秒），25 个本模组类，中英文语言资源，版本 1.1.0；无测试类、无其他模组类或嵌套依赖 JAR。
-- 本次没有自动安装或上传。v涛.3 仍保留原来的 `mods/thirstpreview-1.0.0.jar`，散列核对未变；未修改温度 HUD、其他模组、游戏配置或存档。
+- 完整构建成功，25 个本模组类，中英文语言资源，版本 1.1.0；无测试类、无其他模组类或嵌套依赖 JAR。
+- 发布准备仅更新源码说明与 GitHub 发布附件，没有自动替换游戏实例中的已安装模组；未修改温度 HUD、其他模组、游戏配置或存档。
 
-测试包 1.1.0 SHA-256：`69FB6DCA38C45A4C3E9E5F0E95E0FE06BAC55DE7B570AA529F6B7CD422578AB4`，41448 字节。
+发布包 1.1.0 SHA-256：`3DAF17DAAF5960097293D491AC968A03E5AD483565B814EC88B0AE782907565A`，41448 字节。
 
 已安装旧包 1.0.0 SHA-256：`842F77D3EBC75778E55128BA134EFAE2D415063514E280C6A45E3C300604BE6C`，未改动。
 
-成功构建使用：
+构建与验证示例（将路径替换为自己的测试整合包；本机验证使用目标实例中的实际文件）：
 
 ```powershell
-.\gradlew.bat test build --offline --rerun-tasks `
+$packRules = 'C:/Minecraft/Instance/config/simpledifficulty/consumableThirst.json'
+$graveStoneJar = 'C:/Minecraft/Instance/mods/GraveStone-1.0.0.jar'
+.\gradlew.bat test build --rerun-tasks `
   '-Dorg.gradle.jvmargs=-Xmx2G -Dfile.encoding=UTF-8 -Dnet.minecraftforge.gradle.test_certs=false -Dsun.net.client.defaultConnectTimeout=4000 -Dsun.net.client.defaultReadTimeout=4000' `
-  '-PpackRules=E:/PCL/.minecraft/versions/Rlcraft-CEAddons v涛.3/config/simpledifficulty/consumableThirst.json' `
-  '-PgravestoneJar=E:/PCL/.minecraft/versions/Rlcraft-CEAddons v涛.3/mods/GraveStone-1.0.0.jar'
+  "-PpackRules=$packRules" `
+  "-PgravestoneJar=$graveStoneJar"
 ```
 
 本机具备所需依赖缓存。旧 ForgeGradle 的额外网络探测曾导致一次构建停滞，仅停止了该次自有构建进程，加入子 JVM 的探测开关和连接/读取超时后重跑成功；未停止游戏进程或修改实际下载的 TLS 校验。工具仍提示旧 Gradle API 将不兼容未来 Gradle 5，本项目固定使用 Gradle 4.10.3。
@@ -36,4 +38,4 @@
 
 没有使用本次新 JAR 启动游戏，也没有进入存档进行食用/饮用、OpenGL 实际状态或完整整合包兼容性实测。3 项接线检查是静态源码契约，不是端到端 GUI 测试；其余测试不覆盖真实画面。自动测试与字节码核对不能替代游戏验收，具体步骤见 README。
 
-其他模组在同一阶段修改高度会保守跳过横条；高度增量不是公共实际几何事件，不能声称对任意未知渲染器都能绝对识别。第三方主动删除 tooltip 行、使用自定义非 Forge 提示框或在最后阶段另行改写布局也不承诺支持。本轮是供实际整合包验证的本地测试包，不是已实测发行版。
+其他模组在同一阶段修改高度会保守跳过横条；高度增量不是公共实际几何事件，不能声称对任意未知渲染器都能绝对识别。第三方主动删除 tooltip 行、使用自定义非 Forge 提示框或在最后阶段另行改写布局也不承诺支持。本版本作为 GitHub Prerelease 发布，供实际整合包验证，尚未完成游戏内画面验收。

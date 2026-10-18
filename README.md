@@ -1,6 +1,8 @@
 # 补水预览 / Thirst Preview
 
-独立客户端模组，与坚定意志 SimpleDifficulty 0.3.9 联动。1.1.0 为图标与横条适配测试版，不是温度 HUD 的更新包。
+独立客户端模组，与坚定意志 SimpleDifficulty 0.3.9 联动。适用于 Minecraft Forge 1.12.2，当前版本 1.1.0 为图标与横条适配测试版。
+
+[下载 1.1.0 模组](https://github.com/King1309773/ThirstPreview/releases/download/v1.1.0/thirstpreview-1.1.0.jar) · [发布说明与源码](https://github.com/King1309773/ThirstPreview/releases/tag/v1.1.0)
 
 ## 使用
 
@@ -18,9 +20,9 @@
 
 环境：Minecraft 1.12.2、Forge 14.23.5.2860、SimpleDifficulty 0.3.9、Java 8。
 
-完全退出游戏后，备份并移出 `mods/thirstpreview-1.0.0.jar`，放入新测试 JAR（`build/libs/thirstpreview-1.1.0.jar`，交付副本名称含 `icons-bars-test`），然后重启。不能同时保留两个版本；不要替换温度 HUD 或 SimpleDifficulty。客户端安装即可，服务端不需要此附属。
+从上方发布页下载 `thirstpreview-1.1.0.jar`。完全退出游戏后，备份并移出旧版 Thirst Preview JAR，将新版放入 `mods` 后重启。不能同时保留两个版本。保留现有 SimpleDifficulty、温度 HUD 等模组；客户端安装即可，服务端不需要此附属。
 
-可保留原来的 `config/thirstpreview.cfg`。本次只生成本地测试包，没有自动替换任何实例中的已安装模组，也没有上传 GitHub。
+可保留原来的 `config/thirstpreview.cfg`。升级时无需修改存档或其他模组的配置。
 
 卸载时移除该 JAR；配置文件可保留。本模组只读取补水规则、添加客户端显示。
 
