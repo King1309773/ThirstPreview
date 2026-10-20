@@ -1,12 +1,12 @@
 # 补水预览 / Thirst Preview
 
-独立客户端模组，与坚定意志 SimpleDifficulty 0.3.9 联动。适用于 Minecraft Forge 1.12.2，当前版本 1.1.0 为图标与横条适配测试版。
+独立客户端模组，与坚定意志 SimpleDifficulty 0.3.9 联动。适用于 Minecraft Forge 1.12.2，当前版本 1.1.1 为图标与横条适配测试版。
 
-[下载 1.1.0 模组](https://github.com/King1309773/ThirstPreview/releases/download/v1.1.0/thirstpreview-1.1.0.jar) · [发布说明与源码](https://github.com/King1309773/ThirstPreview/releases/tag/v1.1.0)
+[下载 1.1.1 模组](https://github.com/King1309773/ThirstPreview/releases/download/v1.1.1/thirstpreview-1.1.1.jar) · [发布说明与源码](https://github.com/King1309773/ThirstPreview/releases/tag/v1.1.1)
 
 ## 使用
 
-- 鼠标移到背包或 JEI 的食物、饮料上，在物品提示框内部显示原生蓝色水滴。**2 点 = 1 个完整水滴，1 点 = 半滴**。苹果汁 8 点显示 4 滴。
+- 鼠标移到背包或 JEI 的食物、饮料上，在物品提示框内部直接显示原生蓝色水滴，图标前无文字前缀。**2 点 = 1 个完整水滴，1 点 = 半滴**。苹果汁 8 点显示 4 滴。
 - 按住 Shift，查看精确补水点数、水分饱和度和已知脱水概率。
 - 超过 10 滴时显示单滴加“×滴数”；零值显示灰色空滴和 0；负值显示红色轮廓滴加负滴数。图标行无法安全放入提示框时回退数值文本。
 - 手持补水物品时，口渴条上闪烁显示可恢复的部分，超过 20 点的部分不会画到条外。当前 7 点、补水 8 点仅预览 7→15；负补水显示红色损失区。正在使用的物品优先，其次主手，再其次副手。
@@ -20,7 +20,7 @@
 
 环境：Minecraft 1.12.2、Forge 14.23.5.2860、SimpleDifficulty 0.3.9、Java 8。
 
-从上方发布页下载 `thirstpreview-1.1.0.jar`。完全退出游戏后，备份并移出旧版 Thirst Preview JAR，将新版放入 `mods` 后重启。不能同时保留两个版本。保留现有 SimpleDifficulty、温度 HUD 等模组；客户端安装即可，服务端不需要此附属。
+从上方发布页下载 `thirstpreview-1.1.1.jar`。完全退出游戏后，备份并移出旧版 Thirst Preview JAR，将新版放入 `mods` 后重启。不能同时保留两个版本。保留现有 SimpleDifficulty、温度 HUD 等模组；客户端安装即可，服务端不需要此附属。
 
 可保留原来的 `config/thirstpreview.cfg`。升级时无需修改存档或其他模组的配置。
 
