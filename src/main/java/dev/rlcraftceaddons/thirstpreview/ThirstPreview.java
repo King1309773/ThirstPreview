@@ -6,7 +6,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 
-@Mod(modid = ThirstPreview.MODID, name = "Thirst Preview", version = "1.1.3",
+@Mod(modid = ThirstPreview.MODID, name = "Thirst Preview", version = "1.1.4",
         acceptedMinecraftVersions = "[1.12.2]", clientSideOnly = true,
         acceptableRemoteVersions = "*",
         dependencies = "required-after:simpledifficulty@[0.3.9,0.4);after:appleskin")

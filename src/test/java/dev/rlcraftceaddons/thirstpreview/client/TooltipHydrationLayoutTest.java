@@ -15,20 +15,35 @@ public class TooltipHydrationLayoutTest {
         assertEquals(45, row.textureU(1));
         assertEquals("", row.counter);
     }
-    @Test public void tenDropsFitButLargerValuesUseExactCompactCount() {
+    @Test public void tenDropsCapLargeCustomAmountsWithoutNumericCounters() {
         assertEquals(10, TooltipHydrationLayout.forAmount(20).iconCount);
-        assertEquals(1, TooltipHydrationLayout.forAmount(21).iconCount);
-        assertEquals("×10.5", TooltipHydrationLayout.forAmount(21).counter);
-        assertEquals("×1073741823.5", TooltipHydrationLayout.forAmount(Integer.MAX_VALUE).counter);
+        assertEquals(10, TooltipHydrationLayout.forAmount(21).iconCount);
+        assertEquals("", TooltipHydrationLayout.forAmount(21).counter);
+        assertEquals(10, TooltipHydrationLayout.forAmount(Integer.MAX_VALUE).iconCount);
+        assertEquals("", TooltipHydrationLayout.forAmount(Integer.MAX_VALUE).counter);
+        assertEquals(36, TooltipHydrationLayout.forAmount(21).textureU(9));
     }
     @Test public void zeroAndLossAreDistinctAndDoNotOverflow() {
         assertEquals(0, TooltipHydrationLayout.forAmount(0).textureU(0));
-        assertEquals("0", TooltipHydrationLayout.forAmount(0).counter);
+        assertEquals("", TooltipHydrationLayout.forAmount(0).counter);
         assertTrue(TooltipHydrationLayout.forAmount(-3).loss);
-        assertEquals("-1.5", TooltipHydrationLayout.forAmount(-3).counter);
+        assertEquals(2, TooltipHydrationLayout.forAmount(-3).iconCount);
+        assertEquals("", TooltipHydrationLayout.forAmount(-3).counter);
         assertEquals("Red tint requires the native grayscale drop, not the blue filled sprite", 9,
                 TooltipHydrationLayout.forAmount(-3).textureU(0));
-        assertEquals("-1073741824", TooltipHydrationLayout.forAmount(Integer.MIN_VALUE).counter);
+        assertEquals(10, TooltipHydrationLayout.forAmount(Integer.MIN_VALUE).iconCount);
+        assertEquals("", TooltipHydrationLayout.forAmount(Integer.MIN_VALUE).counter);
+    }
+    @Test public void oddLossUsesAClippedHalfSilhouetteAndKeepsNinePixelSlots() {
+        TooltipHydrationLayout.Row loss = TooltipHydrationLayout.forAmount(-3);
+        assertEquals(9, loss.iconWidth(0));
+        assertEquals(5, loss.iconWidth(1));
+        assertEquals(18, loss.width(0));
+        assertEquals(5, TooltipHydrationLayout.forAmount(-1).iconWidth(0));
+        assertEquals(9, TooltipHydrationLayout.forAmount(-4).iconWidth(1));
+        assertEquals(9, TooltipHydrationLayout.forAmount(Integer.MIN_VALUE).iconWidth(9));
+        assertEquals(9, TooltipHydrationLayout.forAmount(3).iconWidth(1));
+        assertEquals(9, TooltipHydrationLayout.forAmount(0).iconWidth(0));
     }
     @Test public void reservationIsMeasuredAndWrappingIsDetected() {
         String reserve = TooltipHydrationLayout.reservation(35, 4);

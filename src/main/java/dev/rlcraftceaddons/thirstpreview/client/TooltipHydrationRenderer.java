@@ -10,7 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import org.lwjgl.opengl.GL11;
@@ -46,39 +45,29 @@ public final class TooltipHydrationRenderer {
         TooltipHydrationLayout.Row row = TooltipHydrationLayout.forAmount(amount);
         int y = TooltipHydrationLayout.iconTop(event.getY(), event.getHeight(), index, event.getLines().size());
         if (y < 0) return; // An over-height/clipped tooltip must not paint over a different line.
-        String label = I18n.format("thirstpreview.tooltip.label");
-        int labelWidth = font.getStringWidth(label);
-        int rowWidth = labelWidth + 3 + row.width(font.getStringWidth(row.counter));
+        int rowWidth = row.width(0);
         ScaledResolution screen = new ScaledResolution(Minecraft.getMinecraft());
         boolean icons = TooltipHydrationLayout.complete(event.getLines().get(index), reservation(font, amount))
                 && fits(event, screen, y, rowWidth);
-        String fallback = I18n.format("thirstpreview.tooltip.points", amount);
-        if (!icons && !fits(event, screen, y, font.getStringWidth(fallback))) {
-            fallback = Integer.toString(amount);
-            if (!fits(event, screen, y, font.getStringWidth(fallback))) return;
-        }
+        if (!icons) return;
         try (PreviewRenderState ignored = PreviewRenderState.capture()) {
             GlStateManager.disableDepth();
             GlStateManager.disableLighting();
             GlStateManager.enableTexture2D();
             GlStateManager.enableBlend();
             GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
-            if (!icons) {
-                font.drawStringWithShadow(fallback, event.getX(), y + 1, 0x55FFFF);
-                return;
-            }
-            font.drawStringWithShadow(label, event.getX(), y + 1, 0x55FFFF);
             Minecraft minecraft = Minecraft.getMinecraft();
             minecraft.getTextureManager().bindTexture(ModConfig.client.classicHUDThirst ? ThirstGui.ICONS : ThirstGui.THIRSTHUD);
             if (amount == 0) GlStateManager.color(0.65F, 0.65F, 0.65F, 1F);
             else GlStateManager.color(1F, row.loss ? 0.3F : 1F, row.loss ? 0.3F : 1F, 1F);
-            int x = event.getX() + labelWidth + 3;
+            int x = event.getX();
             for (int icon = 0; icon < row.iconCount; icon++) {
-                minecraft.ingameGUI.drawTexturedModalRect(x + icon * 9, y, row.textureU(icon), 0, 9, 9);
+                int width = row.iconWidth(icon);
+                int crop = 9 - width;
+                minecraft.ingameGUI.drawTexturedModalRect(x + icon * 9 + crop, y,
+                        row.textureU(icon) + crop, 0, width, 9);
             }
             GlStateManager.color(1F, 1F, 1F, 1F);
-            if (!row.counter.isEmpty()) font.drawStringWithShadow(row.counter,
-                    x + row.iconCount * 9 + 3, y + 1, row.loss ? 0xFF6666 : (amount == 0 ? 0xAAAAAA : 0x55FFFF));
         }
     }
 
@@ -91,7 +80,7 @@ public final class TooltipHydrationRenderer {
     }
     private int rowWidth(FontRenderer font, int amount) {
         TooltipHydrationLayout.Row row = TooltipHydrationLayout.forAmount(amount);
-        return font.getStringWidth(I18n.format("thirstpreview.tooltip.label")) + 3 + row.width(font.getStringWidth(row.counter));
+        return row.width(0);
     }
     private boolean enabled() { return ThirstPreviewConfig.showTooltip && QuickConfig.isThirstEnabled(); }
 }

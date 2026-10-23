@@ -10,12 +10,9 @@ public final class TooltipHydrationLayout {
     private TooltipHydrationLayout() { }
 
     public static Row forAmount(int amount) {
-        if (amount > 0 && amount <= 20) {
-            return new Row(amount, (amount + 1) / 2, false, "");
-        }
-        String drops = Long.toString(Math.abs((long) amount) / 2L)
-                + (Math.abs((long) amount) % 2L == 0 ? "" : ".5");
-        return new Row(amount, 1, amount < 0, amount == 0 ? "0" : (amount < 0 ? "-" : "×") + drops);
+        // Match the twenty-point capacity without adding numeric counters.
+        int visible = (int) Math.min(20L, Math.abs((long) amount));
+        return new Row(amount, Math.max(1, (visible + 1) / 2), amount < 0, "");
     }
 
     public static String reservation(int width, int spaceWidth) {
@@ -125,6 +122,11 @@ public final class TooltipHydrationLayout {
             if (amount == 0) return 0;
             if (amount < 0) return 9; // Native grayscale silhouette: tinting the blue fill cannot produce red.
             return amount > 0 && amount <= 20 && icon * 2 + 1 == amount ? 45 : 36;
+        }
+        public int iconWidth(int icon) {
+            if (icon < 0 || icon >= iconCount) throw new IndexOutOfBoundsException();
+            // Native grayscale silhouettes have no half sprite; draw its right half for odd losses.
+            return loss && Math.abs((long) amount) == icon * 2L + 1L ? 5 : 9;
         }
         public int width(int counterWidth) {
             return iconCount * 9 + (counter.isEmpty() ? 0 : 3 + counterWidth);
