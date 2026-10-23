@@ -51,6 +51,20 @@ public class TooltipHydrationLayoutTest {
         assertFalse(TooltipHydrationLayout.fits(4, 51, 51, 9, 4, 20, 50, 40, 100, 100));
         assertFalse(TooltipHydrationLayout.fits(4, -1, 45, 9, 4, -32, 50, 40, 100, 100));
     }
+    @Test public void refinedStorageFooterDoesNotHideOrMoveTheMainHydrationRow() {
+        // RS PostText includes one/two ten-pixel footer lines in the height,
+        // while its four main lines and their Y positions remain unchanged.
+        assertEquals(51, TooltipHydrationLayout.iconTop(20, 60, 3, 4));
+        assertEquals(51, TooltipHydrationLayout.iconTop(20, 50, 3, 4));
+        assertEquals(51, TooltipHydrationLayout.iconTop(20, 40, 3, 4));
+        assertTrue(TooltipHydrationLayout.fits(4, 51, 45, 9, 4, 20, 50, 60, 100, 100));
+    }
+    @Test public void footerCompatibilityStillRejectsClippedAndInvalidMainRows() {
+        assertEquals(-1, TooltipHydrationLayout.iconTop(20, 38, 3, 4));
+        assertEquals(-1, TooltipHydrationLayout.iconTop(20, 60, 4, 4));
+        assertEquals(-1, TooltipHydrationLayout.iconTop(Integer.MAX_VALUE, 60, 3, 4));
+        assertFalse(TooltipHydrationLayout.fits(4, 51, 45, 9, 4, 20, 50, 60, 100, 55));
+    }
     @Test public void preflightRejectsClippedAndWrappedRowsBeforeBlankTextIsDrawn() {
         String reserve = TooltipHydrationLayout.reservation(48, 4);
         List<String> lines = Arrays.asList("title", "details", reserve);

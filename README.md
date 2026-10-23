@@ -1,8 +1,8 @@
 # 补水预览 / Thirst Preview
 
-独立客户端模组，与坚定意志 SimpleDifficulty 0.3.9 联动。适用于 Minecraft Forge 1.12.2，当前版本 1.1.1 为图标与横条适配测试版。
+独立客户端模组，与坚定意志 SimpleDifficulty 0.3.9 联动。适用于 Minecraft Forge 1.12.2，当前版本 1.1.2 为容器提示兼容修复测试版。
 
-[下载 1.1.1 模组](https://github.com/King1309773/ThirstPreview/releases/download/v1.1.1/thirstpreview-1.1.1.jar) · [发布说明与源码](https://github.com/King1309773/ThirstPreview/releases/tag/v1.1.1)
+[下载 1.1.2 模组](https://github.com/King1309773/ThirstPreview/releases/download/v1.1.2/thirstpreview-1.1.2.jar) · [发布说明与源码](https://github.com/King1309773/ThirstPreview/releases/tag/v1.1.2)
 
 ## 使用
 
@@ -14,13 +14,28 @@
 - 支持当前水滴纹理和坚定意志经典纹理。补水行位于提示框内部，避开 AppleSkin 的外部饥饿度面板。
 - 支持已核验 GraveStone 1.0.0 横向水条：浅蓝色半透明回复段，负值红色；原生水滴路径和横条路径互斥。菜单、F1、创造/旁观及无有效口渴能力时不预览。
 
+## 容器提示兼容
+
+1.1.2 修复了 RS 终端底部信息导致的水滴行缺失，并让补水值随所属提示文字传递。容器只提供文字列表、提示被复制或缓存时，不再依赖绘制事件中的物品信息。
+
+| 界面 | 通用适配路径 |
+|---|---|
+| 普通箱子、背包、机器物品槽 | 标准 Forge 物品提示与绘制事件 |
+| RS 普通、合成、无线、便携、大型终端 | 共用 GuiGrid 提示路径，保留底部库存说明 |
+| RS 合成预览的物品条目 | 支持主提示框之后另加小字信息区 |
+| RS 合成监视器的物品详情、JEI 文字列表提示 | 支持绘制事件物品为空但已有物品提示文字的路径 |
+
+正常空间显示水滴；换行或宽度不足时在原提示行显示数值，保留容器自身绘制。若提示框连完整数值也放不下，会跳过该行以避免越界。
+
+这些适配依赖物品提示生成与 Forge 绘制事件。完全自行绘制且绕过事件的界面、RS 只显示任务名称的标签，以及流体而非饮用物品的条目不在覆盖范围；不能据此保证所有第三方 GUI 都兼容。实际验证范围见 VERIFICATION.md。
+
 例如，当前整合包的苹果补水 1 点（半格），西瓜补水 3 点（1.5 格），牛奶补水 4 点（2 格）。
 
 ## 安装及卸载
 
 环境：Minecraft 1.12.2、Forge 14.23.5.2860、SimpleDifficulty 0.3.9、Java 8。
 
-从上方发布页下载 `thirstpreview-1.1.1.jar`。完全退出游戏后，备份并移出旧版 Thirst Preview JAR，将新版放入 `mods` 后重启。不能同时保留两个版本。保留现有 SimpleDifficulty、温度 HUD 等模组；客户端安装即可，服务端不需要此附属。
+从上方发布页下载 `thirstpreview-1.1.2.jar`。完全退出游戏后，备份并移出旧版 Thirst Preview JAR，将新版放入 `mods` 后重启。不能同时保留两个版本。保留现有 SimpleDifficulty、温度 HUD 等模组；客户端安装即可，服务端不需要此附属。
 
 可保留原来的 `config/thirstpreview.cfg`。升级时无需修改存档或其他模组的配置。
 

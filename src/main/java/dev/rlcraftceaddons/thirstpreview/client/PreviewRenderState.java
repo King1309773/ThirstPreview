@@ -22,7 +22,8 @@ public final class PreviewRenderState implements AutoCloseable {
     private final int destinationRgb = GL11.glGetInteger(GL14.GL_BLEND_DST_RGB);
     private final int sourceAlpha = GL11.glGetInteger(GL14.GL_BLEND_SRC_ALPHA);
     private final int destinationAlpha = GL11.glGetInteger(GL14.GL_BLEND_DST_ALPHA);
-    private final FloatBuffer color = BufferUtils.createFloatBuffer(4);
+    // LWJGL 2 validates a sixteen-float minimum for glGetFloat queries.
+    private final FloatBuffer color = BufferUtils.createFloatBuffer(16);
     private boolean closed;
 
     private PreviewRenderState() {

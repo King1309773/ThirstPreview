@@ -38,13 +38,15 @@ import org.lwjgl.opengl.GL14;
 public final class ClientEvents {
     private final TooltipHydrationRenderer tooltipPreview = new TooltipHydrationRenderer();
     private final GraveStoneBarPreview barPreview = new GraveStoneBarPreview();
-    private final FloatBuffer savedColor = BufferUtils.createFloatBuffer(4);
+    // LWJGL 2 requires room for sixteen floats even for GL_CURRENT_COLOR.
+    private final FloatBuffer savedColor = BufferUtils.createFloatBuffer(16);
     private int updateCounter;
     private int capturedThirstY;
     private boolean capturedNativeRow;
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onItemTooltip(ItemTooltipEvent event) {
+        tooltipPreview.clearRows(event.getToolTip());
         if (!ThirstPreviewConfig.showTooltip || !QuickConfig.isThirstEnabled()) {
             return;
         }
@@ -66,9 +68,6 @@ public final class ClientEvents {
                     "thirstpreview.tooltip.dirty_chance", format(values.dirtyChance * 100F)));
         }
     }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onTooltipPre(RenderTooltipEvent.Pre event) { tooltipPreview.pre(event); }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onTooltipText(RenderTooltipEvent.PostText event) { tooltipPreview.post(event); }

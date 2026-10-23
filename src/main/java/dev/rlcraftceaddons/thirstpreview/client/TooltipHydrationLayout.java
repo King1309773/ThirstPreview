@@ -44,7 +44,9 @@ public final class TooltipHydrationLayout {
     }
 
     public static int iconTop(int y, int height, int index, int count) {
-        if (index < 1 || index >= count || (long) height != 10L * count) return -1;
+        // Some containers append a footer to the reported height without adding
+        // it to the main lines. That does not move the ordinary ten-pixel rows.
+        if (index < 1 || index >= count || (long) height < 10L * count) return -1;
         long top = (long) y + 10L * index + 1;
         return top < 0 || top > Integer.MAX_VALUE ? -1 : (int) top;
     }
