@@ -12,9 +12,8 @@ public class PreviewIntegrationContractTest {
         return new String(Files.readAllBytes(Paths.get("src/main/java/dev/rlcraftceaddons/thirstpreview/" + name)), StandardCharsets.UTF_8);
     }
 
-    @Test public void eventsUseBothIndependentRenderers() throws Exception {
+    @Test public void eventsKeepHeldHudRenderersAndVisibilityGuards() throws Exception {
         String text = source("client/ClientEvents.java");
-        assertTrue("tooltip icons must be wired", text.contains("TooltipHydrationRenderer"));
         assertTrue("horizontal preview must be wired", text.contains("barPreview.capture("));
         assertTrue(text.contains("barPreview.beginFrame("));
         assertTrue(text.contains("barPreview.render("));

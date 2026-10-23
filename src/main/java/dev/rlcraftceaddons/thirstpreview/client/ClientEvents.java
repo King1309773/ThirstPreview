@@ -22,7 +22,6 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -36,7 +35,6 @@ import org.lwjgl.opengl.GL14;
 /** Client-only presentation; never changes the capability or consumption behavior. */
 @SideOnly(Side.CLIENT)
 public final class ClientEvents {
-    private final TooltipHydrationRenderer tooltipPreview = new TooltipHydrationRenderer();
     private final GraveStoneBarPreview barPreview = new GraveStoneBarPreview();
     // LWJGL 2 requires room for sixteen floats even for GL_CURRENT_COLOR.
     private final FloatBuffer savedColor = BufferUtils.createFloatBuffer(16);
@@ -46,7 +44,7 @@ public final class ClientEvents {
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onItemTooltip(ItemTooltipEvent event) {
-        tooltipPreview.clearRows(event.getToolTip());
+        TooltipHydrationSnapshot.removeRows(event.getToolTip());
         if (!ThirstPreviewConfig.showTooltip || !QuickConfig.isThirstEnabled()) {
             return;
         }
@@ -55,12 +53,8 @@ public final class ClientEvents {
             return;
         }
         boolean details = !ThirstPreviewConfig.showDetailsWithShift || GuiScreen.isShiftKeyDown();
-        boolean icons = tooltipPreview.addRow(event.getToolTip(), event.getItemStack(), values);
-        if (!icons || details) {
-            event.getToolTip().add(TextFormatting.AQUA + I18n.format(
-                    "thirstpreview.tooltip.hydration", Integer.toString(values.amount),
-                    format(PreviewMath.dropletUnits(values.amount))));
-        }
+        event.getToolTip().add(TextFormatting.AQUA + I18n.format(
+                "thirstpreview.tooltip.points", Integer.toString(values.amount)));
         if (details) {
             event.getToolTip().add(TextFormatting.GRAY + I18n.format(
                     "thirstpreview.tooltip.saturation", format(values.saturation)));
@@ -68,9 +62,6 @@ public final class ClientEvents {
                     "thirstpreview.tooltip.dirty_chance", format(values.dirtyChance * 100F)));
         }
     }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onTooltipText(RenderTooltipEvent.PostText event) { tooltipPreview.post(event); }
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
